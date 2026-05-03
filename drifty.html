@@ -1,0 +1,118 @@
+<!-- testing.html -->
+<style>
+  /* Global styles for the drift effect */
+  .drift-text {
+    font-size: 64px;
+    font-weight: 900;
+    font-family: 'Arial Black', Impact, sans-serif;
+    white-space: nowrap;
+    position: relative;
+    display: inline-flex; /* Changed to inline-flex so it fits in sentences */
+    line-height: 1.4;
+    letter-spacing: 4px;
+  }
+  
+  .drift-text .letter {
+    display: inline-block;
+    position: relative;
+    will-change: transform;
+  }
+
+  /* Demo Layout styles - You can remove these in your actual site */
+  .demo-container {
+    font-family: sans-serif;
+    padding: 2rem;
+    line-height: 1.6;
+  }
+  .section { margin-bottom: 3rem; }
+</style>
+
+<div class="demo-container">
+  <div class="section">
+    <h2>Example 1: Standalone Heading</h2>
+    <!-- We use data attributes to customize each instance -->
+    <div class="drift-text" data-drift="15" data-rot="20" data-speed="4">
+      AWESOME
+    </div>
+  </div>
+
+  <div class="section">
+    <h2>Example 2: Inside a sentence</h2>
+    <p>
+      Check out this 
+      <span class="drift-text" data-drift="5" data-rot="10" data-speed="2" style="font-size: 24px; letter-spacing: 1px;">
+        COOL EFFECT
+      </span> 
+      right in the middle of a paragraph!
+    </p>
+  </div>
+
+  <div class="section">
+    <h2>Example 3: Subtle floating</h2>
+    <div class="drift-text" data-drift="3" data-rot="5" data-speed="1">
+      SUBTLE DRIFT
+    </div>
+  </div>
+</div>
+
+<script>
+class DriftText {
+  constructor(element) {
+    this.el = element;
+    
+    // Get settings from data attributes or use defaults
+    this.driftAmt = parseFloat(this.el.dataset.drift) || 12;
+    this.rotAmt = parseFloat(this.el.dataset.rot) || 15;
+    this.speed = parseFloat(this.el.dataset.speed) || 4;
+    
+    this.letters = [];
+    this.init();
+  }
+
+  init() {
+    const text = this.el.textContent.trim();
+    this.el.innerHTML = [...text].map(c => 
+      `<span class="letter">${c === ' ' ? '&nbsp;' : c}</span>`
+    ).join('');
+
+    this.letters = [...this.el.querySelectorAll('.letter')].map(span => ({
+      el: span,
+      phaseX: Math.random() * Math.PI * 2,
+      phaseY: Math.random() * Math.PI * 2,
+      phaseR: Math.random() * Math.PI * 2,
+      freqX: 0.7 + Math.random() * 0.6,
+      freqY: 0.5 + Math.random() * 0.6,
+      freqR: 0.4 + Math.random() * 0.5,
+    }));
+  }
+
+  update(t) {
+    const s = t * 0.0005 * this.speed;
+    this.letters.forEach(l => {
+      const x = Math.sin(s * l.freqX + l.phaseX) * this.driftAmt;
+      const y = Math.cos(s * l.freqY + l.phaseY) * this.driftAmt;
+      const rot = Math.sin(s * l.freqR + l.phaseR) * this.rotAmt;
+      l.el.style.transform = `translate(${x.toFixed(2)}px, ${y.toFixed(2)}px) rotate(${rot.toFixed(2)}deg)`;
+    });
+  }
+}
+
+// Global Manager to handle all drift elements in one animation loop
+const DriftManager = {
+  instances: [],
+  init() {
+    const elements = document.querySelectorAll('.drift-text');
+    elements.forEach(el => {
+      this.instances.push(new DriftText(el));
+    });
+    requestAnimationFrame(this.animate.bind(this));
+  },
+  animate(t) {
+    this.instances.forEach(inst => inst.update(t));
+    requestAnimationFrame(this.animate.bind(this));
+  }
+};
+
+// Start the effect
+DriftManager.init();
+</script>
