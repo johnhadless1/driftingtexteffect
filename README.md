@@ -5,6 +5,12 @@ Drifting text effect with HTML, CSS and JS.
 
 For full example/demo, download the _drifty.html_ to see the effect in action.
 
+### ! ! ! Results may vary of use of browsers.
+
+The example gif's page was rendered in Firefox-based browser.
+
+Chrome (or Chromium-based browsers) is much better if you want smooth movement, but makes them slightly blurry.
+
 > [!NOTE]
 > This was been vibe coded by Claude, then fixed by local LLM gemma4.
 
